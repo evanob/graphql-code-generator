@@ -32,7 +32,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-16-yarn-
       - name: Install Dependencies using Yarn
-        run: yarn config list && yarn install && git checkout yarn.lock
+        run: yarn config list && yarn install --update-checksums && git checkout yarn.lock
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
           READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
