@@ -21,9 +21,10 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@evanob'
       - name: Setup NPM credentials
-        run: echo "//npm.pkg.github.com/:_authToken=$NODE_AUTH_TOKEN" >> ~/.npmrc
+        run: (echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN"; echo "always-auth=true") > $NPM_CONFIG_USERCONFIG
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
+          READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
+      - run: cat $NPM_CONFIG_USERCONFIG
       - name: Cache Yarn
         uses: actions/cache@v2
         with:
@@ -35,6 +36,7 @@ jobs:
         run: yarn config list && yarn install && git checkout yarn.lock
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
+          READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@master
