@@ -23,6 +23,10 @@ jobs:
         uses: actions/setup-node@master
         with:
           node-version: ${{ matrix.node_version }}
+      - name: Setup NPM credentials
+        run: (echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN") > ~/.npmrc
+        env:
+          READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
       - name: Cache Yarn
         uses: actions/cache@v2
         with:
