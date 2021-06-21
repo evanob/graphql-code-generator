@@ -37,5 +37,6 @@
   "publishConfig": {
     "directory": "dist",
     "access": "public"
-  }
+  },
+  "private": true
 }
