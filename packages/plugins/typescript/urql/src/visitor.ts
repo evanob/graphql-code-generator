@@ -14,11 +14,13 @@ export interface UrqlPluginConfig extends ClientSideBasePluginConfig {
   withComponent: boolean;
   withHooks: boolean;
   urqlImportFrom: string;
+  withAuth0: boolean;
 }
 
 export class UrqlVisitor extends ClientSideBaseVisitor<UrqlRawPluginConfig, UrqlPluginConfig> {
   constructor(schema: GraphQLSchema, fragments: LoadedFragment[], rawConfig: UrqlRawPluginConfig) {
     super(schema, fragments, rawConfig, {
+      withAuth0: getConfigValue(rawConfig.withAuth0, false),
       withComponent: getConfigValue(rawConfig.withComponent, false),
       withHooks: getConfigValue(rawConfig.withHooks, true),
       urqlImportFrom: getConfigValue(rawConfig.urqlImportFrom, null),
@@ -42,6 +44,10 @@ export class UrqlVisitor extends ClientSideBaseVisitor<UrqlRawPluginConfig, Urql
 
     if (this.config.withComponent || this.config.withHooks) {
       imports.push(`import * as Urql from '${this.config.urqlImportFrom || 'urql'}';`);
+    }
+
+    if (this.config.withAuth0 && this.config.withHooks) {
+      imports.push(`import { useAuth0 } from '@evanob/auth0-react';`);
     }
 
     imports.push(OMIT_TYPE);
@@ -102,6 +108,21 @@ export function use${operationName}() {
       return `
 export function use${operationName}<TData = ${operationResultType}>(options: Omit<Urql.Use${operationType}Args<${operationVariablesTypes}>, 'query'> = {}, handler?: Urql.SubscriptionHandler<${operationResultType}, TData>) {
   return Urql.use${operationType}<${operationResultType}, TData, ${operationVariablesTypes}>({ query: ${documentVariableName}, ...options }, handler);
+};`;
+    }
+
+    if (this.config.withAuth0) {
+      return `
+export function useUnauthenticated${operationName}(options: Omit<Urql.Use${operationType}Args<${operationVariablesTypes}>, 'query'> = {}) {
+  return Urql.use${operationType}<${operationResultType}>({ query: ${documentVariableName}, ...options });
+};
+export function use${operationName}(options: Omit<Urql.Use${operationType}Args<${operationVariablesTypes}>, 'query'> = {}) {
+  const { isAuthenticated } = useAuth0()
+  return Urql.use${operationType}<${operationResultType}>({
+    query: ${documentVariableName},
+    paused: !isAuthenticated,
+    ...options
+  });
 };`;
     }
 

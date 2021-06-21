@@ -22,4 +22,13 @@ export interface UrqlRawPluginConfig extends RawClientSideBasePluginConfig {
    * @default urql
    */
   urqlImportFrom?: string;
+  /**
+   * @description Customized the output by enabling/disabling the use of hooks authenticated using
+   * Auth0. When this flag is enabled, the use<Named>Query hook will be `paused: true` by default
+   * whenever `isAuthenticated` (from `useAuth0`) is false. The original hook of the same name will
+   * be aliased as `useUnauthenticated<Named>Query`.
+   * This is useful only when `withHooks` config is enabled too.
+   * @default false
+   */
+  withAuth0?: boolean;
 }

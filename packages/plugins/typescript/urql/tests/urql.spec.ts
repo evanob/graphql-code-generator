@@ -636,4 +636,41 @@ export function useSubmitRepositoryMutation() {
       expect(content.content).toContain(`export function useTest(`);
     });
   });
+
+  describe('Hooks with Auth0', () => {
+    it('Should generate authenticated and unauthenticated hooks for query', async () => {
+      const documents = parse(/* GraphQL */ `
+        query feed {
+          feed {
+            id
+          }
+        }
+      `);
+      const docs = [{ location: '', document: documents }];
+
+      const content = (await plugin(
+        schema,
+        docs,
+        { withHooks: true, withAuth0: true },
+        {
+          outputFile: 'graphql.tsx',
+        }
+      )) as Types.ComplexPluginOutput;
+
+      expect(content.content).toBeSimilarStringTo(`
+      export function useUnauthenticatedFeedQuery(options: Omit<Urql.UseQueryArgs<FeedQueryVariables>, 'query'> = {}) {
+        return Urql.useQuery<FeedQuery>({ query: FeedDocument, ...options });
+      };
+      export function useFeedQuery(options: Omit<Urql.UseQueryArgs<FeedQueryVariables>, 'query'> = {}) {
+        const { isAuthenticated } = useAuth0()
+        return Urql.useQuery<FeedQuery>({
+          query: FeedDocument,
+          paused: !isAuthenticated,
+          ...options
+        });
+      };`);
+
+      await validateTypeScript(content, schema, docs, {});
+    });
+  });
 });
