@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 16
       - name: Setup NPM credentials
-        run: (echo "always-auth=true"; echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN") > ~/.npmrc
+        run: (echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN") > ~/.npmrc
         env:
           READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
       # - name: Cache Yarn
