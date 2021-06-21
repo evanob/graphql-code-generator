@@ -20,6 +20,7 @@ jobs:
           node-version: 16
           registry-url: 'https://npm.pkg.github.com'
           scope: '@evanob'
+      - run: yarn --version
       - name: Setup NPM credentials
         run: (echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN"; echo "always-auth=true") > $NPM_CONFIG_USERCONFIG
         env:
