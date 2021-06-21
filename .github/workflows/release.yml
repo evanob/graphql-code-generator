@@ -6,31 +6,23 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
     steps:
       - name: Checkout Master
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Configure Git Credentials
-        run: |
-          git config --global user.email "theguild-bot@users.noreply.github.com"
-          git config --global user.name "theguild-bot"
-          echo "machine github.com login theguild-bot password ${{secrets.GH_API_TOKEN}}" > ~/.netrc
-      - name: Add origin remote and refetch master
-        run: |
-          git remote rm origin
-          git remote add origin "https://github.com/${{github.repository}}"
-          git fetch
-          git checkout master
-          git reset --hard
       - name: Use Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
       - name: Setup NPM credentials
-        run: echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" >> ~/.npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN" > ~/.npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
       - name: Cache Yarn
         uses: actions/cache@v2
         with:
@@ -39,7 +31,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-16-yarn-
       - name: Install Dependencies using Yarn
-        run: yarn install && git checkout yarn.lock
+        run: yarn install --frozen-lockfile
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@master
@@ -49,4 +41,3 @@ jobs:
           title: 'Upcoming Release Changes'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
