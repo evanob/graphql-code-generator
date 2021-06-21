@@ -18,11 +18,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@evanob'
       - run: yarn --version
       - name: Setup NPM credentials
-        run: (echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN"; echo "always-auth=true") > $NPM_CONFIG_USERCONFIG
+        run: (echo "always-auth=true"; echo "//npm.pkg.github.com/:_authToken=$READ_PACKAGES_AUTH_TOKEN"; echo "//npm.pkg.github.com/evanob/:_authToken=$READ_PACKAGES_AUTH_TOKEN") > ~/.npmrc
         env:
           READ_PACKAGES_AUTH_TOKEN: ${{ secrets.READ_PACKAGES_AUTH_TOKEN }}
       - run: cat $NPM_CONFIG_USERCONFIG
