@@ -9,6 +9,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pull-requests: write
     steps:
       - name: Checkout Master
         uses: actions/checkout@v2
